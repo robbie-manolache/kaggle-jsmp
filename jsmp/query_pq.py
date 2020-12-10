@@ -8,6 +8,13 @@ def query_train_pq(pq_dir, date_range=None,
                    return_cols='all', features='all'):
     """
     Allows fast, seamless querying of training data parquet database.
+    ** ARGS **
+    pq_dir: str, path to parquet directory
+    date_range: list of int, value of first and last date to query between
+    id_cols: list of str
+    return_cols: list of str
+    features: list of str or list of int, if list of str it each
+        element must start with 'feature_'
     """
     
     # initialise row date filters
@@ -33,11 +40,15 @@ def query_train_pq(pq_dir, date_range=None,
     # select features
     if features == "all":
         features = [c for c in all_cols if c.startswith('feature_')]
+    elif type(features) == list:
+        if all([type(f) == int for f in features]):
+            features=['feature_' + str(f) for f in features] 
+        else:
+            pass
     else:
         pass
- 
+
     # read data and convert to pandas
     columns = id_cols + features + return_cols
     df = pq_con.read(columns=columns).to_pandas()
     return df
-
