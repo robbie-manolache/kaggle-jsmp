@@ -131,6 +131,7 @@ config.json
 # Testing files
 dev_*.ipynb
 test_*.ipynb
+notes.md
 
 # Local file sync
 sync.py
