@@ -51,4 +51,11 @@ def query_train_pq(pq_dir, date_range=None,
     # read data and convert to pandas
     columns = id_cols + features + return_cols
     df = pq_con.read(columns=columns).to_pandas()
+    
+    # convert date to int
+    if 'date' in df.columns:
+        df.loc[:, 'date'] = df['date'].astype(int)
+    else:
+        pass
+    
     return df
