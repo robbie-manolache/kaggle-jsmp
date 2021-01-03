@@ -5,6 +5,7 @@ import numpy as np
 
 def gen_tag_features(df, meta, verbose=False):
     """
+    Adds Boolean columns for each tag depending on available features.
     """
     
     # copy input df and create Boolean table for non-missing features
@@ -27,4 +28,31 @@ def gen_tag_features(df, meta, verbose=False):
         if verbose:
             print("Tag %d has been processed"%t)
             
+    return df_out
+
+def preproc_data(df, NA_fill=None, add_tags=False, tag_meta=None,
+                 verbose=False):
+    """
+    * NA_fill = float, 'mean' or 'median'
+    * If add_tags==True, must provide tag_meta
+    """
+
+    df_out = df.copy()
+
+    # add feature tags
+    if add_tags:
+        df_out = gen_tag_features(df_out, tag_meta, verbose)
+    else:
+        pass
+
+    # fill NA values
+    if NA_fill is None:
+        pass
+    elif NA_fill == 'mean':
+        df_out = df_out.fillna(df_out.mean())
+    elif NA_fill == 'median':
+        df_out = df_out.fillna(df_out.median())
+    else:
+        df_out = df_out.fillna(NA_fill)
+
     return df_out
