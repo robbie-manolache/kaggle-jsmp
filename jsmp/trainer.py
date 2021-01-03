@@ -1,23 +1,19 @@
 
 ## Model training functions ##
 
-# packages
 import lightgbm as lgb
 
-# internal functions
-from jsmp.feat_eng import gen_tag_features
-
 def split_data(df, 
-               valid_start, valid_end=None, 
-               eval_start=None, eval_end=None, 
-               train_start=1, train_end=None):
+               valid_start, valid_end="auto", 
+               eval_start=None, eval_end="auto", 
+               train_start=0, train_end="auto"):
     """
     Split input data into training, validation (and evaluation)
     sets by date.
     """
 
     # set validation date range
-    if valid_end is None:
+    if valid_end is "auto":
         if eval_start is None:
             valid_end = df['date'].max()
         else:
@@ -29,13 +25,13 @@ def split_data(df,
     if eval_start is None:
         pass
     else:
-        if eval_end is None:
+        if eval_end is "auto":
             eval_end = df['date'].max()
         else:
             pass
         
     # set training date range
-    if train_end is None:
+    if train_end is "auto":
         train_end = valid_start - 1
     else:
         pass        
@@ -52,4 +48,17 @@ def split_data(df,
         eval_df = df[(df['date'] >= eval_start) & 
                      (df['date'] <= eval_end)]
         return train_df, valid_df, eval_df
+
+def convert_to_lgb_dataset(df_list, label="resp", 
+                           ignore_cols=["date", "ts_id"]):
+    """
+    """
     
+    df_col = df_list[0].columns
+    X_col = [c for c in df_col if c != label and c not in ignore_cols]
+
+    lgb_sets = []
+    for df in df_list:
+        lgb_sets.append(lgb.Dataset(df[X_col], label=df[label]))
+
+    return lgb_sets
