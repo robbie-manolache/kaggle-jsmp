@@ -5,6 +5,7 @@
 from jsmp.query_pq import query_train_pq
 from jsmp.feat_eng import gen_tag_features
 from jsmp.eval_tools import compute_utility
+from jsmp.trainer import split_data
 
 # support functions
 from jsmp.helpers.config import env_config
