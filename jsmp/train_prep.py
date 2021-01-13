@@ -1,5 +1,5 @@
 
-## Model training functions ##
+## Functions to prep data for training ##
 
 import lightgbm as lgb
 
