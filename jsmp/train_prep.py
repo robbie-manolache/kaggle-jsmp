@@ -6,29 +6,21 @@ import pandas as pd
 import lightgbm as lgb
 
 def gen_return_bins(df, in_col='resp', out_col='resp_bin',
-                    splits=[-0.05, -0.005, 0.005, 0.05],
-                    labels=['shocker', 'will_survive', 'boring', 
-                            'not_bad', 'legendary']):
+                    splits=[-0.05, -0.005, 0.005, 0.05]):
     """
     """
     
     # copy input df
     df_out = df.copy()
     
-    # make sure labels are the right length
-    if labels is not None:
-        if len(labels) != (len(splits) + 1):
-            print("Must specify correct number of labels!")
-            return
-
     # pad bin splits
     splits = [-np.inf] + splits + [np.inf]
 
     # create categorical bin column
     df_out.loc[:, out_col] = pd.cut(df[in_col], 
                                     bins=splits, 
-                                    labels=labels)
-    return df_out
+                                    labels=list(range(len(splits)-1)))
+    return df_out.astype({out_col: int})
     
 
 def split_data(df, 
