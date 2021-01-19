@@ -6,8 +6,9 @@ import pandas as pd
 import lightgbm as lgb
 
 def gen_return_bins(df, in_col='resp', out_col='resp_bin',
-                    splits=[-0.05, -0.005, 0.005, 0.05]):
+                    splits=[-0.04, -0.008, 0.008, 0.04]):
     """
+    Categorize returns into different classes.
     """
     
     # copy input df
