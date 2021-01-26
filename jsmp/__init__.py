@@ -4,7 +4,8 @@
 # main functions
 from jsmp.query_pq import query_train_pq
 from jsmp.feat_eng import gen_tag_features, preproc_data
-from jsmp.eval_tools import compute_utility
+from jsmp.eval_tools import compute_utility, predict_return_bin, \
+    confusion_matrix
 from jsmp.train_prep import gen_return_bins, split_data, \
     convert_to_lgb_dataset
 
