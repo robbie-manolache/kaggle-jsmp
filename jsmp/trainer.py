@@ -11,7 +11,7 @@ from jsmp.train_prep import gen_return_bins, split_data, convert_to_lgb_dataset
 
 def train_lgb_classifier(pq_dir, 
                          train_config, 
-                         model_dir = None,
+                         model_dir=None,
                          label="resp_bin",
                          ignore_cols=['date', 'ts_id', 'resp'],
                          check_splits_only=False,
@@ -52,8 +52,10 @@ def train_lgb_classifier(pq_dir,
     
     # train-test split and covert to LGB datasets
     df_list = split_data(df, valid_start=train_config['date_splits'][1])
+    df = None
     lgb_sets = convert_to_lgb_dataset(df_list, label=label, 
                                       ignore_cols=ignore_cols)
+    df_list = None
     
     # train model
     lgb_model = lgb.train(params=train_config['params'], 
@@ -71,7 +73,8 @@ def train_lgb_classifier(pq_dir,
         lgb_model.save_model(os.path.join(model_dir, model_name))
         meta[model_name] = {
             'train_config': train_config,
-            'score': np.exp(-lgb_model.best_score["valid_0"]["multi_logloss"])
+            'score': np.exp(-lgb_model.best_score["valid_0"]["multi_logloss"]),
+            'benchmark': 1/train_config['params']['num_class']
         }
         with open(os.path.join(model_dir, "meta.json"), 'w') as f:
             json.dump(meta, f)
