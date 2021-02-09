@@ -5,13 +5,17 @@ import os
 import json
 from datetime import datetime
 import numpy as np
+import pyarrow as pa
+import pyarrow.parquet as pq
 import lightgbm as lgb
 from jsmp.query_pq import query_train_pq
 from jsmp.train_prep import gen_return_bins, split_data, convert_to_lgb_dataset
+from jsmp.eval_tools import predict_return_bin
 
 def train_lgb_classifier(pq_dir, 
                          train_config, 
                          model_dir=None,
+                         pred_dir=None,
                          label="resp_bin",
                          ignore_cols=['date', 'ts_id', 'resp'],
                          check_splits_only=False,
@@ -39,8 +43,8 @@ def train_lgb_classifier(pq_dir,
     
     # load data
     df = query_train_pq(pq_dir, 
-                        date_range=[train_config['date_splits'][i] 
-                                    for i in [0,2]],
+                        date_range=[train_config['date_splits'][i] for i in 
+                                    [0, len(train_config['date_splits'])-1]],
                         return_cols=['resp'])
     
     # categorize returns checking class representation if required
@@ -50,11 +54,22 @@ def train_lgb_classifier(pq_dir,
     else:
         pass
     
-    # train-test split and covert to LGB datasets
-    df_list = split_data(df, valid_start=train_config['date_splits'][1])
+    # train-test split and covert to LGB datasets  
+    if len(train_config['date_splits']) == 4:
+        eval_start = train_config['date_splits'][2]
+    else:
+        eval_start = None
+    df_list = split_data(df, valid_start=train_config['date_splits'][1],
+                         eval_start=eval_start)
     df = None
-    lgb_sets = convert_to_lgb_dataset(df_list, label=label, 
+    lgb_sets = convert_to_lgb_dataset(df_list[:2], label=label, 
                                       ignore_cols=ignore_cols)
+    
+    # set aside eval_df 
+    if len(train_config['date_splits']) == 4:
+        eval_df = df_list[2]
+    else:
+        pass
     df_list = None
     
     # train model
@@ -78,6 +93,14 @@ def train_lgb_classifier(pq_dir,
         }
         with open(os.path.join(model_dir, "meta.json"), 'w') as f:
             json.dump(meta, f)
+            
+    # make evaluation set predictions and save to disk
+    if pred_dir is None:
+        pass
+    else:
+        pred_df = predict_return_bin(eval_df, lgb_model)
+        table = pa.Table.from_pandas(pred_df)
+        pq.write_to_dataset(table, pred_dir, partition_cols=['date'])
     
     return lgb_model
     

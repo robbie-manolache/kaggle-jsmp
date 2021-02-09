@@ -8,7 +8,7 @@ from jsmp.eval_tools import compute_utility, predict_return_bin, \
     confusion_matrix
 from jsmp.train_prep import gen_return_bins, split_data, \
     convert_to_lgb_dataset
-from jsmp.trainer import train_lgb_classifier
+from jsmp.lgbm_trainer import train_lgb_classifier
 
 # support functions
 from jsmp.helpers.config import env_config
