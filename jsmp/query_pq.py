@@ -59,3 +59,30 @@ def query_train_pq(pq_dir, date_range=None,
         pass
     
     return df
+
+def query_preds_pq(pq_dir, date_range=None, drop_index=True):
+    """
+    """
+    
+    # initialise row date filters
+    if date_range is not None:
+        filters = [('date', '>=', date_range[0]), 
+                   ('date', '<=', date_range[1])]
+    else:
+        filters = None
+        
+    # establish parquet connection and load data
+    pq_con = pq.ParquetDataset(pq_dir, filters=filters)
+    df = pq_con.read().to_pandas()
+    
+    # convert date to int
+    if 'date' in df.columns:
+        df.loc[:, 'date'] = df['date'].astype(int)
+    else:
+        pass
+    
+    if drop_index:
+        return df.drop(columns='__index_level_0__')
+    else:
+        return df
+        
