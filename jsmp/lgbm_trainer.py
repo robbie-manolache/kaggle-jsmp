@@ -129,8 +129,8 @@ def gen_date_splits(init_splits, split_config, final_splits):
             new_splits = date_splits[-1].copy()
             new_splits[0] = sc['start']
             new_splits[1] = new_splits[2]
-            new_splits[2] = new_splits[3]
-            new_splits[3] = new_splits[2] + sc['eval']
+            new_splits[2] = new_splits[3] + 1
+            new_splits[3] = new_splits[2] + sc['eval'] - 1
             if max(new_splits) <= max_date:
                 date_splits.append(new_splits)
 
