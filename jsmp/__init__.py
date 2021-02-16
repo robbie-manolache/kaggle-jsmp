@@ -10,6 +10,7 @@ from jsmp.train_prep import gen_return_bins, split_data, \
     convert_to_lgb_dataset
 from jsmp.lgbm_trainer import train_lgb_classifier, gen_date_splits, \
     multi_date_lgbm_preds
+from jsmp.NN_trainer import train_NN_action_model
 
 # support functions
 from jsmp.helpers.config import env_config
