@@ -20,10 +20,14 @@ def train_NN_action_model(train_config,
                           train_dir,                         
                           model_dir=None,
                           thresholds=None,
-                          verbose=False):
+                          verbose=False,
+                          show_train_progress=0):
     """
     """
 
+    # Set seed
+    np.random.seed(train_config["seed"])
+    
     # Metadata check
     if model_dir is None:
         pass
@@ -112,12 +116,14 @@ def train_NN_action_model(train_config,
                   epochs=NN_params["n_epoch"], 
                   batch_size=np.round(x_train.shape[0]/
                                       NN_params["n_batch"]).astype(int), 
-                  validation_data=(x_test, y_test))
+                  validation_data=(x_test, y_test),
+                  verbose=show_train_progress)
     else:
         model.fit(x_train, y_train, 
                   epochs=NN_params["n_epoch"], 
                   batch_size=np.round(x_train.shape[0]/
-                                      NN_params["n_batch"]).astype(int))
+                                      NN_params["n_batch"]).astype(int),
+                  verbose=show_train_progress)
     
     # Generate predictions
     results = {}
@@ -127,10 +133,10 @@ def train_NN_action_model(train_config,
         for t in thresholds:
             pred_df.loc[:, "action"] = (preds > t).astype(int)
             u, profit = compute_utility(pred_df, verbose=False)
-            results[t] = (u, np.sum(profit))
+            results[t] = (u/len(profit), np.mean(profit), np.std(profit))
             if verbose:
-                print("Threshold: %.2f | Profit: %.1f | Utility: %.1f"
-                      %(t, np.sum(profit), u))
+                print("Threshold: %.2f | Profit: %.1f | Volatility: %.1f | Utility: %.1f"
+                      %(t, np.mean(profit), np.std(profit), u))
             else:
                 pass
     else:
