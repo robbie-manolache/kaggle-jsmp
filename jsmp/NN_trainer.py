@@ -20,6 +20,7 @@ def train_NN_action_model(train_config,
                           train_dir,                         
                           model_dir=None,
                           thresholds=None,
+                          overwrite=False,
                           verbose=False,
                           show_train_progress=0):
     """
@@ -42,7 +43,10 @@ def train_NN_action_model(train_config,
         for k, v in meta.items():
             if v['train_config'] == train_config:
                 print("This train_config already used by %s"%k)
-                return
+                if overwrite:
+                    pass
+                else:
+                    return
             else:
                 pass   
     
@@ -114,15 +118,15 @@ def train_NN_action_model(train_config,
     if eval_sets:
         model.fit(x_train, y_train, 
                   epochs=NN_params["n_epoch"], 
-                  batch_size=np.round(x_train.shape[0]/
-                                      NN_params["n_batch"]).astype(int), 
+                  batch_size=np.ceil(x_train.shape[0]/
+                                     NN_params["n_batch"]).astype(int), 
                   validation_data=(x_test, y_test),
                   verbose=show_train_progress)
     else:
         model.fit(x_train, y_train, 
                   epochs=NN_params["n_epoch"], 
-                  batch_size=np.round(x_train.shape[0]/
-                                      NN_params["n_batch"]).astype(int),
+                  batch_size=np.ceil(x_train.shape[0]/
+                                     NN_params["n_batch"]).astype(int),
                   verbose=show_train_progress)
     
     # Generate predictions
