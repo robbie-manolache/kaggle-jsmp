@@ -161,5 +161,26 @@ def train_NN_action_model(train_config,
             json.dump(meta, f)
     
     return model
+
+def load_model_from_disk(model_dir, model_name):
+    """
+    """
+    with open(os.path.join(model_dir, model_name+".json")) as rf:
+        model_json = json.load(rf)
+
+    model = keras.models.model_from_json(model_json)
+    model.load_weights(os.path.join(model_dir, model_name+".h5"))
+
+    return model
     
+def save_weights_to_json(model, n_layer, json_path):
+    """
+    """
+    names = [s + str(i) for i in range(n_layer) for s in ["w", "b"]]
+    weights = {}
+    for i, a in enumerate(model.get_weights()):
+        weights[names[i]] = a.tolist()
+    with open(json_path, "w") as wf:
+        json.dump(weights, wf)
+   
     
